@@ -1,15 +1,14 @@
 .space-bg {
-  background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  background: radial-gradient(ellipse at bottom, #2D3A4B 0%, #1B2735 100%);
   background-attachment: fixed;
 }
-
 .title-glow {
   text-shadow: 0 0 10px rgba(138, 180, 248, 0.6);
 }
 
 .planet-container {
   position: relative;
-  border: 2px solid rgba(30, 64, 175, 0.4);
+  border: 2px solid rgba(177, 184, 207, 0.671);
   box-shadow: 0 0 20px rgba(20, 40, 120, 0.3);
   backdrop-filter: blur(4px);
   transition: all 0.3s ease-in-out;
@@ -72,7 +71,7 @@
   background: radial-gradient(circle, #FFD700, #FFA500, #FF4500);
   border-radius: 50%;
   box-shadow:
-    0 0 30px rgba(255, 215, 0, 0.8),
+    0 0 30px rgba(141, 138, 123, 0.8),
     0 0 60px rgba(255, 165, 0, 0.6),
     0 0 100px rgba(255, 69, 0, 0.5);
   animation: sunPulse 3s infinite ease-in-out;
