@@ -1,0 +1,23 @@
+body {
+  background-image: url("galaxy.jpg");
+  background-size: cover;
+  background-position: top center;
+  } 
+
+.Sun {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.Miller {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.Minecraft{
+position: absolute;
+  top: 20px;
+  left: 250px;
+}
