@@ -6,7 +6,8 @@ const SolarSystem = () => {
     const containerRef = useRef(null);
     const [selectedPlanet, setSelectedPlanet] = useState(null);
     const [currentSystem, setCurrentSystem] = useState('solar'); // 'solar', 'proxima', or 'mov'
-    const [showVideo, setShowVideo] = useState(false);
+    const [isRotating, setIsRotating] = useState(true); // Add state for rotation control
+    const [showVideoModal, setShowVideoModal] = useState(false); // State for showing video modal
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -284,7 +285,8 @@ const SolarSystem = () => {
                         "The waves are caused by the gravitational pull of the black hole Gargantua.",
                         "The planet was named after Dr. Miller, a scientist who landed there to explore its potential for human habitation."
                     ],
-                    showVideo: true
+                    videoId: "60h6lpnSgck",
+                    videoEmbed: '<iframe width="560" height="315" src="https://www.youtube.com/embed/60h6lpnSgck?si=MJgL5QsCEeeb_EBY&amp;start=153" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
                 },
                 {
                     name: 'Jupiter',
@@ -441,7 +443,8 @@ const SolarSystem = () => {
                         "The waves are caused by the gravitational pull of the black hole Gargantua.",
                         "The planet was named after Dr. Miller, a scientist who landed there to explore its potential for human habitation."
                     ],
-                    showVideo: true
+                    videoId: "60h6lpnSgck",
+                    videoEmbed: '<iframe width="560" height="315" src="https://www.youtube.com/embed/60h6lpnSgck?si=MJgL5QsCEeeb_EBY&amp;start=153" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
                 },
                 {
                     name: 'Mann\'s Planet',
@@ -456,7 +459,9 @@ const SolarSystem = () => {
                         "It was falsely reported as habitable by Dr. Mann to lure rescue.",
                         "The planet has intense storms and unstable ice formations.",
                         "Despite its appearance, the planet cannot support human life without extensive terraforming."
-                    ]
+                    ],
+                    videoId: "a3lcGnMhvsA",
+                    videoEmbed: '<iframe width="560" height="315" src="https://www.youtube.com/embed/a3lcGnMhvsA?si=Iq8NoGzG8g1App88&amp;start=99" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
                 },
                 {
                     name: 'Minecraft',
@@ -471,7 +476,9 @@ const SolarSystem = () => {
                         "Resources can be mined from the planet's crust to build structures.",
                         "The planet has a day-night cycle with hostile creatures appearing at night.",
                         "Gravity on Minecraft is uniform regardless of mass, with all objects falling at the same rate."
-                    ]
+                    ],
+                    videoId: "RjKGhWY9VUo",
+                    videoEmbed: '<iframe width="560" height="315" src="https://www.youtube.com/embed/RjKGhWY9VUo?si=LjSETsR8yI42ChTs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
                 }
             ];
         }
@@ -765,15 +772,19 @@ const SolarSystem = () => {
             
             if (intersects.length > 0) {
                 const planet = intersects[0].object;
-                setSelectedPlanet(planet.userData.planetData);
+                console.log("Selected planet object:", planet);
                 
-                // Show video for Miller's Planet if available
-                if (planet.userData.planetData.showVideo) {
-                    setShowVideo(true);
+                // Ensure planet.userData and planetData exist before accessing their properties
+                if (planet.userData && planet.userData.planetData) {
+                    console.log("Selected planet data:", planet.userData.planetData);
+                    setSelectedPlanet(planet.userData.planetData);
+                } else {
+                    console.log("Planet userData or planetData is missing");
+                    setSelectedPlanet(null);
                 }
             } else {
                 setSelectedPlanet(null);
-                setShowVideo(false);
+                setShowVideoModal(false);
             }
         };
         
@@ -790,7 +801,7 @@ const SolarSystem = () => {
             
             // Rotate planets
             planets.forEach(planet => {
-                if (planet.userData.planetData) {
+                if (planet.userData.planetData && isRotating) {
                     // Self-rotation
                     planet.rotation.y += planet.userData.planetData.rotationSpeed;
                     
@@ -806,28 +817,30 @@ const SolarSystem = () => {
             
             // Update comets
             comets.forEach(comet => {
-                comet.position.add(comet.userData.direction.clone().multiplyScalar(comet.userData.speed));
-                
-                // Reset comet position if it goes too far
-                if (comet.position.length() > 600) {
-                    const radius = 200 + Math.random() * 300;
-                    const theta = Math.random() * Math.PI * 2;
-                    const phi = Math.acos(Math.random() * 2 - 1);
+                if (isRotating) {
+                    comet.position.add(comet.userData.direction.clone().multiplyScalar(comet.userData.speed));
                     
-                    comet.position.x = radius * Math.sin(phi) * Math.cos(theta);
-                    comet.position.y = radius * Math.sin(phi) * Math.sin(theta);
-                    comet.position.z = radius * Math.cos(phi);
+                    // Reset comet position if it goes too far
+                    if (comet.position.length() > 600) {
+                        const radius = 200 + Math.random() * 300;
+                        const theta = Math.random() * Math.PI * 2;
+                        const phi = Math.acos(Math.random() * 2 - 1);
+                        
+                        comet.position.x = radius * Math.sin(phi) * Math.cos(theta);
+                        comet.position.y = radius * Math.sin(phi) * Math.sin(theta);
+                        comet.position.z = radius * Math.cos(phi);
+                        
+                        comet.userData.direction = new THREE.Vector3(
+                            Math.random() - 0.5,
+                            Math.random() - 0.5,
+                            Math.random() - 0.5
+                        ).normalize();
+                    }
                     
-                    comet.userData.direction = new THREE.Vector3(
-                        Math.random() - 0.5,
-                        Math.random() - 0.5,
-                        Math.random() - 0.5
-                    ).normalize();
+                    // Update tail direction to point away from comet movement
+                    const tail = comet.children[0];
+                    tail.lookAt(comet.position.clone().add(comet.userData.direction.clone().multiplyScalar(-1)));
                 }
-                
-                // Update tail direction to point away from comet movement
-                const tail = comet.children[0];
-                tail.lookAt(comet.position.clone().add(comet.userData.direction.clone().multiplyScalar(-1)));
             });
             
             renderer.render(scene, camera);
@@ -872,56 +885,136 @@ const SolarSystem = () => {
             
             renderer.dispose();
         };
-    }, [currentSystem, setSelectedPlanet, setShowVideo]);
+    }, [currentSystem, setSelectedPlanet, isRotating, showVideoModal]);
+
+    // Extract YouTube video ID from URL
+    const getYouTubeVideoId = (embedCode) => {
+        const match = embedCode.match(/embed\/([-\w]+)/);
+        return match ? match[1] : 'o_Ay_iDRAbc'; // Default to Miller's Planet ID
+    };
 
     // System selector handler
     const handleSystemChange = (system) => {
         setCurrentSystem(system);
         setSelectedPlanet(null);
-        setShowVideo(false);
+        setShowVideoModal(false);
+    };
+    
+    // Toggle rotation handler
+    const toggleRotation = () => {
+        setIsRotating(!isRotating);
     };
     
     // Video modal component
     const VideoModal = () => {
-        if (!showVideo) return null;
+        if (!showVideoModal || !selectedPlanet || !selectedPlanet.videoEmbed) return null;
         
         return (
             <div className="video-modal">
-                <button className="close-button" onClick={() => setShowVideo(false)}>×</button>
-                <iframe 
-                    width="560" 
-                    height="315" 
-                    src="https://www.youtube.com/embed/o_Ay_iDRAbc" 
-                    title="Miller's Planet Scene" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                ></iframe>
+                <button className="close-button" onClick={() => setShowVideoModal(false)}>×</button>
+                <div className="video-modal-content" dangerouslySetInnerHTML={{ __html: selectedPlanet.videoEmbed.replace('width="560" height="315"', 'width="800" height="450"') }} />
             </div>
         );
     };
     
     // Planet info panel
     const PlanetInfo = () => {
+        console.log("PlanetInfo rendering with:", selectedPlanet);
         if (!selectedPlanet) return null;
         
         return (
             <div className="planet-info">
                 <h2>{selectedPlanet.name}</h2>
-                <p className="description">{selectedPlanet.description}</p>
+                <p className="description">{selectedPlanet.description || "Description unavailable."}</p>
                 <h3>Facts:</h3>
                 <ul>
-                    {selectedPlanet.facts.map((fact, index) => (
+                    {selectedPlanet.facts && selectedPlanet.facts.map((fact, index) => (
                         <li key={index}>{fact}</li>
                     ))}
                 </ul>
-                {selectedPlanet.showVideo && (
-                    <button className="video-button" onClick={() => setShowVideo(true)}>
-                        Watch Scene
-                    </button>
+                {selectedPlanet.videoEmbed && (
+                    <div className="video-thumbnail" onClick={() => setShowVideoModal(true)}>
+                        <div className="play-button-overlay">
+                            <span className="play-icon">▶</span>
+                        </div>
+                        <img 
+                            src={`https://img.youtube.com/vi/${selectedPlanet.videoId || getYouTubeVideoId(selectedPlanet.videoEmbed)}/0.jpg`} 
+                            alt={`${selectedPlanet.name} video thumbnail`} 
+                            className="video-thumbnail-img"
+                        />
+                        <p className="video-caption">Watch {selectedPlanet.name} Scene</p>
+                    </div>
                 )}
             </div>
         );
+    };
+
+    // Add debug buttons to directly select planets for testing
+    const debugSelectPlanet = (planetName) => {
+        let planet = null;
+        
+        if (planetName === "Miller's Planet") {
+            planet = {
+                name: 'Miller\'s Planet',
+                radius: 1.3,
+                distance: 30,
+                color: 0x0077be,
+                rotationSpeed: 0.008,
+                orbitSpeed: 0.015,
+                description: "Miller's Planet from the movie Interstellar. This planet orbits extremely close to a supermassive black hole called Gargantua.",
+                facts: [
+                    "Due to extreme time dilation, 1 hour on Miller's Planet equals 7 years on Earth.",
+                    "The planet is covered by a shallow ocean with massive tidal waves.",
+                    "The waves are caused by the gravitational pull of the black hole Gargantua.",
+                    "The planet was named after Dr. Miller, a scientist who landed there to explore its potential for human habitation."
+                ],
+                videoId: "60h6lpnSgck",
+                videoEmbed: '<iframe width="560" height="315" src="https://www.youtube.com/embed/60h6lpnSgck?si=3NWG8ym_aLuxozRz&amp;start=135" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+            };
+        } else if (planetName === "Mann's Planet") {
+            planet = {
+                name: 'Mann\'s Planet',
+                radius: 1.6,
+                distance: 22,
+                color: 0xf0f8ff,
+                rotationSpeed: 0.005,
+                orbitSpeed: 0.025,
+                description: "Mann's Planet is an ice-covered world from the movie Interstellar.",
+                facts: [
+                    "The planet has a frozen, inhospitable surface with ammonia-rich atmosphere.",
+                    "It was falsely reported as habitable by Dr. Mann to lure rescue.",
+                    "The planet has intense storms and unstable ice formations.",
+                    "Despite its appearance, the planet cannot support human life without extensive terraforming."
+                ],
+                videoId: "a3lcGnMhvsA",
+                videoEmbed: '<iframe width="560" height="315" src="https://www.youtube.com/embed/a3lcGnMhvsA?si=jyNIFikGhFCSeyRM&amp;start=99" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+            };
+        } else if (planetName === "Minecraft") {
+            planet = {
+                name: 'Minecraft',
+                radius: 1.5,
+                distance: 30,
+                color: 0x228B22,
+                rotationSpeed: 0.007,
+                orbitSpeed: 0.015,
+                description: "A cubic planet inspired by the popular video game Minecraft, added to the Mov System.",
+                facts: [
+                    "The planet's surface is entirely composed of cube-shaped biomes.",
+                    "Resources can be mined from the planet's crust to build structures.",
+                    "The planet has a day-night cycle with hostile creatures appearing at night.",
+                    "Gravity on Minecraft is uniform regardless of mass, with all objects falling at the same rate."
+                ],
+                videoId: "RjKGhWY9VUo",
+                videoEmbed: '<iframe width="560" height="315" src="https://www.youtube.com/embed/RjKGhWY9VUo?si=LjSETsR8yI42ChTs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+            };
+        }
+        
+        if (planet) {
+            console.log("Manually selecting planet:", planet);
+            setSelectedPlanet(planet);
+        } else {
+            console.log("Planet not found");
+        }
     };
 
     return (
@@ -944,6 +1037,22 @@ const SolarSystem = () => {
                     onClick={() => handleSystemChange('mov')}
                 >
                     Mov System
+                </button>
+                <button 
+                    className={`rotation-toggle ${!isRotating ? 'paused' : ''}`}
+                    onClick={toggleRotation}
+                >
+                    {isRotating ? 'Pause Rotation' : 'Resume Rotation'}
+                </button>
+                {/* Debug buttons */}
+                <button onClick={() => debugSelectPlanet("Miller's Planet")}>
+                    Debug: Miller's Planet
+                </button>
+                <button onClick={() => debugSelectPlanet("Mann's Planet")}>
+                    Debug: Mann's Planet
+                </button>
+                <button onClick={() => debugSelectPlanet("Minecraft")}>
+                    Debug: Minecraft
                 </button>
             </div>
             
